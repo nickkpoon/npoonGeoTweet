@@ -182,6 +182,8 @@ public class FirebaseHelper {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                LocationPoint tweets = dataSnapshot.getValue(LocationPoint.class);
+                Log.d("ONCHILDCHANGED CALLED", "ONCHILDCHANGED");
 
             }
 
@@ -213,6 +215,11 @@ public class FirebaseHelper {
     public static void updateRemoveListener(LocationPoint LP)
     {
         LocationPoint.removeData(LP);
+    }
+
+    public static void updateChangeListener(LocationPoint LP)
+    {
+        LocationPoint.changeData(LP);
     }
     // TODO: Add methods for increasing the number of likes
     // TODO: You *may* create a listener mechanism so that your Activity and Fragments can register callbacks to the database helper

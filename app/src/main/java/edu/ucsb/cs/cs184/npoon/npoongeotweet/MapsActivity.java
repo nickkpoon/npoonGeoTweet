@@ -1,9 +1,14 @@
 package edu.ucsb.cs.cs184.npoon.npoongeotweet;
 
 import android.app.Fragment;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 
@@ -76,6 +81,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng tempLocation = new LatLng(Lat, Long);
                 Marker marker = mMap.addMarker(new MarkerOptions().position(tempLocation).title(tweetContent));
                 markerList.add(marker);
+
+                sendNotification(data.getAuthor(), data.getContent());
             }
 
             @Override
@@ -91,6 +98,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 messageList.remove(data);
 
+            }
+
+            @Override
+            public void onDataChanged(LocationPoint data)
+            {
+                Log.d("OnDataChanged", "DataChanged");
             }
         });
 
@@ -126,9 +139,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerFragment.setArguments(bundle);
                 markerFragment.show(fragmentManager, "markerFragment");
                 Log.d("MARKER CLICKED", "MARKER CLICKED");
+
+                sendNotification(author, content);
+                Log.d("NOTIFICATION TRIGGERED", "NOTIF TRIGGERED");
                 return true;
             }
         });
+
+    }
+
+    public void sendNotification(String author, String content)
+    {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(   this)
+                .setSmallIcon(R.drawable.ic_hearing_black_24dp)
+                .setContentTitle(author)
+                .setContentText(content);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.notify(001, mBuilder.build());
+
 
     }
 

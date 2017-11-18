@@ -8,7 +8,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by nickkpoon on 11/17/17.
@@ -39,6 +41,14 @@ public class TweetFragment extends DialogFragment {
         authorView.setText(author);
         contentView.setText(content);
         likeView.setText(likes);
+
+        Button button = (Button) v.findViewById(R.id.LikeButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "hehe", Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
 

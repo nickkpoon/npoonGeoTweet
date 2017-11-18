@@ -25,6 +25,7 @@ public class LocationPoint implements Serializable {
         public void onObjectReady(String title);
         public void onDataLoaded(LocationPoint data);
         public void onDataRemoved(LocationPoint data);
+        public void onDataChanged(LocationPoint data);
     }
     public void setLocationPointListener(LocationPointListener listener)
     {
@@ -74,6 +75,14 @@ public class LocationPoint implements Serializable {
         if (listener != null)
         {
             listener.onDataRemoved(LP);
+        }
+    }
+
+    public static void changeData(LocationPoint LP)
+    {
+        if (listener != null)
+        {
+            listener.onDataChanged(LP);
         }
     }
 }
