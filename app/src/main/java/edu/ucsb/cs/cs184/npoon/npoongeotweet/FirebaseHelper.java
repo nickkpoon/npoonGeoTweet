@@ -1,13 +1,17 @@
 package edu.ucsb.cs.cs184.npoon.npoongeotweet;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
@@ -111,7 +115,7 @@ public class FirebaseHelper {
                             .build()
                     );
                     // Call the OnDatabaseInitialized to setup application logic
-                    OnDatabaseInitialized();
+                    OnDatabaseInitialized(context);
                 }
             });
             retrieveTokensTask.execute();
@@ -119,16 +123,97 @@ public class FirebaseHelper {
     }
     /** ============================================================================================
      */
+    static ArrayList<LocationPoint> messageList = new ArrayList<>();
+
+    public static void populateTweets(LocationPoint LP)
+    {
+        messageList.add(LP);
+    }
+
+    public static ArrayList<LocationPoint> getTweets()
+    {
+        if(messageList != null)
+        {
+            Log.d("NOT-NULL MESSAGELIST", "NOT-NULL MESSAGES!!!");
+            return messageList;
+        }
+        else {
+            Log.d("NULL MESSAGELIST", "NULL MESSAGES!!!");
+            return null;
+        }
+
+    }
 
     /** This is called once we initialize the firebase database object */
-    private static void OnDatabaseInitialized() {
+    private static void OnDatabaseInitialized(Context context) {
         db = FirebaseDatabase.getInstance();
-
+        queryDB(db, context);
         // TODO: Setup your callbacks to listen for /posts.
         // Your code should handle post added, post updated, and post deleted events.
 
     }
 
+    public static void queryDB(FirebaseDatabase db, final Context context)
+    {
+        DatabaseReference myReference = db.getReference("posts");
+        Log.d("FB initialized", "FB INITIALIZED");
+        myReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.d("ONCHILDADD initialized", "ONCHILDADDED INITIALIZED");
+
+
+                LocationPoint tweets = dataSnapshot.getValue(LocationPoint.class);
+                double longitude = tweets.getLongitude();
+                double latitude = tweets.getLatitude();
+                String author = tweets.getAuthor();
+                    Log.d("captured Author", author);
+                String content = tweets.getContent();
+                    Log.d("captured Tag", content);
+                double timestamp = tweets.getTimestamp();
+                int likes = tweets.getLikes();
+
+                populateTweets(tweets);
+                    Log.d("TWEETLIST ADDED", "ADDED TO LIST");
+
+                updateListener(tweets);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                LocationPoint tweets = dataSnapshot.getValue(LocationPoint.class);
+                Log.d("REMOVEDTWEET", tweets.getAuthor());
+                updateRemoveListener(tweets);
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public static void updateListener(LocationPoint LP)
+    {
+        LocationPoint.loadData(LP);
+    }
+
+    public static void updateRemoveListener(LocationPoint LP)
+    {
+        LocationPoint.removeData(LP);
+    }
     // TODO: Add methods for increasing the number of likes
     // TODO: You *may* create a listener mechanism so that your Activity and Fragments can register callbacks to the database helper
 }

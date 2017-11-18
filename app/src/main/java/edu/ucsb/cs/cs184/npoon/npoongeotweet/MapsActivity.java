@@ -1,28 +1,41 @@
 package edu.ucsb.cs.cs184.npoon.npoongeotweet;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    ArrayList<LocationPoint> messageList = new ArrayList<>();
+    ArrayList<Marker> markerList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("FB INITIALIZE CALLED", "FB INITIALIZE CALLED!@!!!!");
+        FirebaseHelper.Initialize(this);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        FirebaseHelper.Initialize(this);
+
+
 
     }
 
@@ -39,13 +52,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        Log.d("MAP INITIALIZE CALLED", "MAP INITIALIZE CALLED!@!!!!");
+        mMap.setMinZoomPreference(15.0f);
+        LatLng UCSB = new LatLng(34.412936, -119.847863);
+        mMap.addMarker(new MarkerOptions().position(UCSB).title("UCSB"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(UCSB));
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return false;
+            }
+        });
 
-        // Add a marker in Sydney and move the camera
-        LatLng ucsb = new LatLng( 34.412936, -119.847863);
-        mMap.addMarker(new MarkerOptions().position(ucsb).title("Marker in UCSB"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(ucsb));
+        LocationPoint LP = new LocationPoint();
+        LP.setLocationPointListener(new LocationPoint.LocationPointListener() {
+            @Override
+            public void onObjectReady(String title) {
 
-        mMap.setMinZoomPreference(17.0f);
+            }
+
+            @Override
+            public void onDataLoaded(LocationPoint data) {
+                messageList.add(data);
+                String tweetContent = data.getContent();
+                Log.d("passedContent", tweetContent);
+                double Lat = data.getLatitude();
+                Log.d("passedLatitude", String.valueOf(Lat));
+                double Long = data.getLongitude();
+                Log.d("passedLongitude", String.valueOf(Long));
+                LatLng tempLocation = new LatLng(Lat, Long);
+                Marker marker = mMap.addMarker(new MarkerOptions().position(tempLocation).title(tweetContent));
+                markerList.add(marker);
+            }
+
+            @Override
+            public void onDataRemoved(LocationPoint data) {
+                for (int i = 0; i < markerList.size(); i++)
+                {
+                    Marker marker = markerList.get(i);
+                    if (data.getContent().equals(marker.getTitle()))
+                    {
+                        marker.remove();
+                        markerList.remove(i);
+                    }
+                }
+                messageList.remove(data);
+
+            }
+        });
 
     }
+
 }
