@@ -1,12 +1,11 @@
 package edu.ucsb.cs.cs184.npoon.npoongeotweet;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.app.FragmentManager;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -60,7 +59,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                return false;
+                FragmentManager fragmentManager = getFragmentManager();
+
+                TweetFragment markerFragment = new TweetFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("Author", "author");
+                bundle.putString("Content", "content");
+                markerFragment.setArguments(bundle);
+                markerFragment.show(fragmentManager, "markerFragment");
+                Log.d("MARKER CLICKED", "MARKER CLICKED");
+                return true;
             }
         });
 
