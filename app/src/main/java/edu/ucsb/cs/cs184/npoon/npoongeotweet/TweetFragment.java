@@ -28,13 +28,17 @@ public class TweetFragment extends DialogFragment {
         View v = inflater.inflate(R.layout.fragment_tweet, container, false);
 
         String author = getArguments().getString("Author");
-        Log.d("DIALOGFRAGMENT", "AUTHOR IS: " + author);
+        //Log.d("DIALOGFRAGMENT", "AUTHOR IS: " + author);
         String content = getArguments().getString("Content");
+        String likes = getArguments().getString("Likes");
+
         TextView authorView = (TextView)v.findViewById(R.id.Author);
         TextView contentView = (TextView)v.findViewById(R.id.Content);
+        TextView likeView = v.findViewById(R.id.Likes);
 
         authorView.setText(author);
         contentView.setText(content);
+        likeView.setText(likes);
 
 
 

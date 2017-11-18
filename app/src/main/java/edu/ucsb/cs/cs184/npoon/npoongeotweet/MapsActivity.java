@@ -54,23 +54,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("MAP INITIALIZE CALLED", "MAP INITIALIZE CALLED!@!!!!");
         mMap.setMinZoomPreference(15.0f);
         LatLng UCSB = new LatLng(34.412936, -119.847863);
-        mMap.addMarker(new MarkerOptions().position(UCSB).title("UCSB"));
+        //mMap.addMarker(new MarkerOptions().position(UCSB).title("UCSB"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(UCSB));
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                FragmentManager fragmentManager = getFragmentManager();
-
-                TweetFragment markerFragment = new TweetFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("Author", "author");
-                bundle.putString("Content", "content");
-                markerFragment.setArguments(bundle);
-                markerFragment.show(fragmentManager, "markerFragment");
-                Log.d("MARKER CLICKED", "MARKER CLICKED");
-                return true;
-            }
-        });
 
         LocationPoint LP = new LocationPoint();
         LP.setLocationPointListener(new LocationPoint.LocationPointListener() {
@@ -106,6 +91,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 messageList.remove(data);
 
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                String author = "default";
+                String content = "default";
+
+                int likes = 0;
+
+
+                for (int i = 0; i < messageList.size(); i++)
+                {
+                    if (marker.getTitle().equals(messageList.get(i).getContent()))
+                    {
+                        author = messageList.get(i).getAuthor();
+                        content = marker.getTitle();
+                        likes = messageList.get(i).getLikes();
+                    }
+                }
+
+                String likeStrings = String.valueOf(likes) + "likes";
+
+                FragmentManager fragmentManager = getFragmentManager();
+
+                TweetFragment markerFragment = new TweetFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("Author", author);
+                bundle.putString("Content", content);
+                bundle.putString("Likes", likeStrings);
+                markerFragment.setArguments(bundle);
+                markerFragment.show(fragmentManager, "markerFragment");
+                Log.d("MARKER CLICKED", "MARKER CLICKED");
+                return true;
             }
         });
 
